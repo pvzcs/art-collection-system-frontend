@@ -20,12 +20,23 @@ import {
   ProfileUpdateFormData,
   PasswordChangeFormData 
 } from "@/lib/utils/validation";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function ProfilePage() {
+  return (
+    <ProtectedRoute>
+      <ProfilePageContent />
+    </ProtectedRoute>
+  );
+}
+
+function ProfilePageContent() {
   const { user: storeUser, updateUser } = useAuthStore();
   const [user, setUser] = useState<User | null>(storeUser);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   // Nickname update form
   const nicknameForm = useForm<ProfileUpdateFormData>({
@@ -81,7 +92,7 @@ export default function ProfilePage() {
         updateUser({ nickname: data.nickname });
       }
       
-      toast.success("Nickname updated successfully");
+      toast.success(t('profile.nicknameUpdated'));
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Failed to update nickname";
       nicknameForm.setError('root', { message: errorMsg });
@@ -97,7 +108,7 @@ export default function ProfilePage() {
       // Clear password fields
       passwordForm.reset();
       
-      toast.success("Password changed successfully");
+      toast.success(t('profile.passwordChanged'));
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Failed to change password";
       passwordForm.setError('root', { message: errorMsg });
@@ -133,9 +144,9 @@ export default function ProfilePage() {
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Profile</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('profile.title')}</h1>
         <p className="text-muted-foreground">
-          Manage your account information and settings
+          {t('profile.description')}
         </p>
       </div>
 
@@ -144,16 +155,16 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UserCircle className="h-5 w-5" />
-            User Information
+            {t('profile.userInfo')}
           </CardTitle>
-          <CardDescription>Your account details</CardDescription>
+          <CardDescription>{t('profile.userInfoDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>Email</span>
+                <span>{t('auth.email')}</span>
               </div>
               <p className="font-medium">{user.email}</p>
             </div>
@@ -161,7 +172,7 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <UserCircle className="h-4 w-4" />
-                <span>Nickname</span>
+                <span>{t('auth.nickname')}</span>
               </div>
               <p className="font-medium">{user.nickname}</p>
             </div>
@@ -169,11 +180,11 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Shield className="h-4 w-4" />
-                <span>Role</span>
+                <span>{t('profile.role')}</span>
               </div>
               <div>
                 <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-                  {user.role === "admin" ? "Administrator" : "User"}
+                  {user.role === "admin" ? t('profile.administrator') : t('profile.user')}
                 </Badge>
               </div>
             </div>
@@ -181,7 +192,7 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span>Member Since</span>
+                <span>{t('profile.memberSince')}</span>
               </div>
               <p className="font-medium">{formatDate(user.created_at)}</p>
             </div>
@@ -194,21 +205,21 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Edit2 className="h-5 w-5" />
-            Update Nickname
+            {t('profile.updateNickname')}
           </CardTitle>
-          <CardDescription>Change your display name</CardDescription>
+          <CardDescription>{t('profile.updateNicknameDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={nicknameForm.handleSubmit(handleUpdateNickname)} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="nickname" className="text-sm font-medium">
-                New Nickname
+                {t('auth.nickname')}
               </label>
               <Input
                 id="nickname"
                 type="text"
                 {...nicknameForm.register('nickname')}
-                placeholder="Enter new nickname"
+                placeholder={t('auth.nicknamePlaceholder')}
                 disabled={nicknameForm.formState.isSubmitting}
                 aria-invalid={!!nicknameForm.formState.errors.nickname}
                 aria-describedby={nicknameForm.formState.errors.nickname ? 'nickname-error' : undefined}
@@ -232,10 +243,10 @@ export default function ProfilePage() {
               {nicknameForm.formState.isSubmitting ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />
-                  Updating...
+                  {t('profile.updating')}
                 </>
               ) : (
-                "Update Nickname"
+                t('profile.updateNickname')
               )}
             </Button>
           </form>
@@ -247,21 +258,21 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />
-            Change Password
+            {t('profile.changePassword')}
           </CardTitle>
-          <CardDescription>Update your account password</CardDescription>
+          <CardDescription>{t('profile.changePasswordDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={passwordForm.handleSubmit(handleChangePassword)} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="old-password" className="text-sm font-medium">
-                Current Password
+                {t('profile.currentPassword')}
               </label>
               <Input
                 id="old-password"
                 type="password"
                 {...passwordForm.register('old_password')}
-                placeholder="Enter current password"
+                placeholder={t('auth.enterCurrentPassword')}
                 disabled={passwordForm.formState.isSubmitting}
                 aria-invalid={!!passwordForm.formState.errors.old_password}
                 aria-describedby={passwordForm.formState.errors.old_password ? 'old-password-error' : undefined}
@@ -274,13 +285,13 @@ export default function ProfilePage() {
             </div>
             <div className="space-y-2">
               <label htmlFor="new-password" className="text-sm font-medium">
-                New Password
+                {t('profile.newPassword')}
               </label>
               <Input
                 id="new-password"
                 type="password"
                 {...passwordForm.register('new_password')}
-                placeholder="Enter new password (min 6 characters)"
+                placeholder={t('auth.enterNewPassword')}
                 disabled={passwordForm.formState.isSubmitting}
                 aria-invalid={!!passwordForm.formState.errors.new_password}
                 aria-describedby={passwordForm.formState.errors.new_password ? 'new-password-error' : undefined}
@@ -300,10 +311,10 @@ export default function ProfilePage() {
               {passwordForm.formState.isSubmitting ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />
-                  Changing...
+                  {t('profile.changing')}
                 </>
               ) : (
-                "Change Password"
+                t('profile.changePassword')
               )}
             </Button>
           </form>
