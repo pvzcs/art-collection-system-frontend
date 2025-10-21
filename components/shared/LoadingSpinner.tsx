@@ -19,12 +19,13 @@ export function LoadingSpinner({
   text,
 }: LoadingSpinnerProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
+    <div className="flex flex-col items-center justify-center gap-2" role="status" aria-live="polite">
       <Loader2
         className={cn("animate-spin text-primary", sizeClasses[size], className)}
-        aria-label="Loading"
+        aria-hidden="true"
       />
-      {text && <p className="text-sm text-muted-foreground">{text}</p>}
+      <span className="sr-only">Loading</span>
+      {text && <p className="text-sm text-muted-foreground" aria-live="polite">{text}</p>}
     </div>
   );
 }
@@ -35,7 +36,7 @@ interface LoadingOverlayProps {
 
 export function LoadingOverlay({ text = "Loading..." }: LoadingOverlayProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Loading">
       <LoadingSpinner size="lg" text={text} />
     </div>
   );
@@ -52,7 +53,11 @@ export function LoadingSkeleton({ className }: LoadingSkeletonProps) {
         "animate-pulse rounded-md bg-muted",
         className
       )}
+      role="status"
       aria-label="Loading content"
-    />
+      aria-live="polite"
+    >
+      <span className="sr-only">Loading</span>
+    </div>
   );
 }

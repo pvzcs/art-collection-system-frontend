@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,20 +13,37 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
   const router = useRouter();
   const { isAuthenticated, isAdmin } = useAuthStore();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // Redirect to login if not authenticated
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
+    // Wait for hydration to complete before checking auth
+    const timer = setTimeout(() => {
+      setIsChecking(false);
+      
+      // Redirect to login if not authenticated
+      if (!isAuthenticated) {
+        router.push('/login');
+        return;
+      }
 
-    // Check admin role if required
-    if (requireAdmin && !isAdmin) {
-      router.push('/');
-      return;
-    }
+      // Check admin role if required
+      if (requireAdmin && !isAdmin) {
+        router.push('/');
+        return;
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [isAuthenticated, isAdmin, requireAdmin, router]);
+
+  // Show loading during hydration check
+  if (isChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   // Don't render children if not authenticated or not admin (when required)
   if (!isAuthenticated) {
@@ -34,14 +52,14 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
 
   if (requireAdmin && !isAdmin) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
+      <main className="flex items-center justify-center min-h-screen" role="main">
+        <div className="text-center space-y-4" role="alert" aria-live="polite">
           <h1 className="text-2xl font-bold text-destructive">Access Denied</h1>
           <p className="text-muted-foreground">
             You do not have permission to access this page.
           </p>
         </div>
-      </div>
+      </main>
     );
   }
 
