@@ -35,7 +35,7 @@ export function ActivityList({
 
   if (activities.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="flex flex-col items-center justify-center py-12 text-center" role="status" aria-live="polite">
         <p className="text-lg text-muted-foreground">No activities found</p>
         <p className="text-sm text-muted-foreground mt-2">
           Check back later for new art collection activities
@@ -46,13 +46,14 @@ export function ActivityList({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-label="Activities list">
         {activities.map((activity) => (
-          <ActivityCard
-            key={activity.id}
-            activity={activity}
-            onClick={() => onActivityClick?.(activity)}
-          />
+          <div key={activity.id} role="listitem">
+            <ActivityCard
+              activity={activity}
+              onClick={() => onActivityClick?.(activity)}
+            />
+          </div>
         ))}
       </div>
       

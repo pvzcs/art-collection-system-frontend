@@ -25,7 +25,7 @@ export function ActivityCard({ activity, onClick }: ActivityCardProps) {
   return (
     <Card
       className={cn(
-        "cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]",
+        "cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] min-h-[160px]",
         onClick && "hover:border-primary"
       )}
       onClick={onClick}
@@ -37,12 +37,13 @@ export function ActivityCard({ activity, onClick }: ActivityCardProps) {
           onClick();
         }
       }}
+      aria-label={`View details for ${activity.name}`}
     >
-      <CardHeader>
+      <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg line-clamp-2">{activity.name}</CardTitle>
           {isLongTerm && (
-            <Badge variant="secondary" className="shrink-0">
+            <Badge variant="secondary" className="shrink-0" aria-label="Long-term activity">
               Long-term
             </Badge>
           )}
@@ -52,12 +53,12 @@ export function ActivityCard({ activity, onClick }: ActivityCardProps) {
         <div className="space-y-2 text-sm text-muted-foreground">
           {!isLongTerm && activity.deadline && (
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>Deadline: {formatDeadline(activity.deadline)}</span>
+              <Calendar className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="break-words">Deadline: {formatDeadline(activity.deadline)}</span>
             </div>
           )}
           <div className="flex items-center gap-2">
-            <Upload className="h-4 w-4" />
+            <Upload className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>Max uploads: {activity.max_uploads_per_user}</span>
           </div>
         </div>
