@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Pagination } from "@/components/shared/Pagination";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface ReviewQueueProps {
   artworks: Artwork[];
@@ -28,6 +29,7 @@ export function ReviewQueue({
 }: ReviewQueueProps) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [isReviewing, setIsReviewing] = useState(false);
+  const { t } = useTranslation();
 
   const totalPages = Math.ceil(pagination.total / pagination.page_size);
 
@@ -58,7 +60,7 @@ export function ReviewQueue({
     try {
       setIsReviewing(true);
       await onReview([artworkId], true);
-      toast.success("Artwork approved successfully");
+      toast.success(t('admin.artworkApproved'));
       
       // Remove from selected if it was selected
       setSelectedIds((prev) => {
@@ -68,7 +70,7 @@ export function ReviewQueue({
       });
     } catch (error: any) {
       console.error("Failed to approve artwork:", error);
-      toast.error(error.response?.data?.message || "Failed to approve artwork");
+      toast.error(error.response?.data?.message || t('admin.artworksFailed'));
     } finally {
       setIsReviewing(false);
     }
@@ -77,7 +79,7 @@ export function ReviewQueue({
   // Handle batch approve
   const handleBatchApprove = async () => {
     if (selectedIds.size === 0) {
-      toast.error("Please select at least one artwork to approve");
+      toast.error(t('admin.selectAtLeastOne'));
       return;
     }
 
@@ -85,11 +87,11 @@ export function ReviewQueue({
       setIsReviewing(true);
       const ids = Array.from(selectedIds);
       await onReview(ids, true);
-      toast.success(`${ids.length} artwork(s) approved successfully`);
+      toast.success(t('admin.batchApproveSuccess').replace('{count}', ids.length.toString()));
       setSelectedIds(new Set());
     } catch (error: any) {
       console.error("Failed to batch approve artworks:", error);
-      toast.error(error.response?.data?.message || "Failed to approve artworks");
+      toast.error(error.response?.data?.message || t('admin.artworksFailed'));
     } finally {
       setIsReviewing(false);
     }
@@ -101,7 +103,7 @@ export function ReviewQueue({
   if (artworks.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">No pending artworks to review</p>
+        <p className="text-muted-foreground">{t('admin.noPendingArtworks')}</p>
       </div>
     );
   }
@@ -119,8 +121,8 @@ export function ReviewQueue({
           />
           <span className="text-sm font-medium">
             {selectedIds.size > 0
-              ? `${selectedIds.size} selected`
-              : "Select all"}
+              ? `${selectedIds.size} ${t('admin.selected')}`
+              : t('admin.selectAll')}
           </span>
         </div>
 
@@ -131,7 +133,7 @@ export function ReviewQueue({
           className="min-h-[44px] w-full sm:w-auto"
         >
           <Check />
-          Approve Selected ({selectedIds.size})
+          {t('admin.approveSelected')} ({selectedIds.size})
         </Button>
       </div>
 
