@@ -1,6 +1,7 @@
 import apiClient from './client';
 import { ApiResponse, AuthResponse } from '@/lib/types/api';
-import { LoginFormData, RegisterFormData } from '@/lib/types/forms';
+import { LoginFormData, RegisterFormData, ProfileUpdateData, PasswordChangeData } from '@/lib/types/forms';
+import { User } from '@/lib/types/models';
 
 /**
  * Send verification code to email for registration
@@ -40,5 +41,34 @@ export const login = async (data: LoginFormData): Promise<ApiResponse<AuthRespon
  */
 export const logout = async (): Promise<ApiResponse<void>> => {
   const response = await apiClient.post<ApiResponse<void>>('/auth/logout');
+  return response.data;
+};
+
+/**
+ * Get current user profile information
+ * @returns Promise with API response containing user data
+ */
+export const getProfile = async (): Promise<ApiResponse<User>> => {
+  const response = await apiClient.get<ApiResponse<User>>('/user/profile');
+  return response.data;
+};
+
+/**
+ * Update current user profile (nickname)
+ * @param data - Profile update data
+ * @returns Promise with API response
+ */
+export const updateProfile = async (data: ProfileUpdateData): Promise<ApiResponse<void>> => {
+  const response = await apiClient.put<ApiResponse<void>>('/user/profile', data);
+  return response.data;
+};
+
+/**
+ * Change current user password
+ * @param data - Password change data
+ * @returns Promise with API response
+ */
+export const changePassword = async (data: PasswordChangeData): Promise<ApiResponse<void>> => {
+  const response = await apiClient.put<ApiResponse<void>>('/user/password', data);
   return response.data;
 };
