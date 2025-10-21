@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface ArtworkUploadProps {
   activityId: number;
@@ -23,6 +24,7 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const validateFile = (file: File): string | null => {
     // Check file type
@@ -92,7 +94,7 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error("Please select a file to upload");
+      toast.error(t('artworks.selectImage'));
       return;
     }
 
@@ -116,13 +118,13 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
       clearInterval(progressInterval);
       setUploadProgress(100);
 
-      toast.success("Artwork uploaded successfully");
+      toast.success(t('artworks.uploadSuccess'));
       handleClearFile();
       onSuccess();
     } catch (error: any) {
       console.error("Upload failed:", error);
       
-      const errorMessage = error.response?.data?.message || "Failed to upload artwork";
+      const errorMessage = error.response?.data?.message || t('artworks.uploadFailed');
       toast.error(errorMessage);
     } finally {
       setIsUploading(false);
@@ -145,22 +147,31 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            aria-label={t('artworks.dropImage')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
           >
             <div className="flex flex-col items-center gap-4">
-              <div className="rounded-full bg-primary/10 p-4">
+              <div className="rounded-full bg-primary/10 p-4" aria-hidden="true">
                 <Upload className="h-8 w-8 text-primary" />
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium">
-                  Drop your image here, or click to browse
+                  {t('artworks.dropImage')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Supports: JPEG, PNG, GIF, WebP (Max 10MB)
+                  {t('artworks.supportedFormats')}
                 </p>
               </div>
-              <Button type="button" variant="outline" size="sm">
-                <ImageIcon />
-                Select Image
+              <Button type="button" variant="outline" size="sm" className="min-h-[44px]" aria-label={t('artworks.selectImage')}>
+                <ImageIcon className="h-4 w-4 mr-2" aria-hidden="true" />
+                {t('artworks.selectImage')}
               </Button>
             </div>
             <input
@@ -169,6 +180,7 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
               accept={ALLOWED_TYPES.join(",")}
               onChange={handleFileInputChange}
               className="hidden"
+              aria-label="File input for artwork upload"
             />
           </div>
         ) : (
@@ -178,7 +190,7 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
               {previewUrl && (
                 <img
                   src={previewUrl}
-                  alt="Preview"
+                  alt={t('artworks.preview')}
                   className="w-full h-full object-contain"
                 />
               )}
@@ -188,13 +200,14 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
                 className="absolute top-2 right-2"
                 onClick={handleClearFile}
                 disabled={isUploading}
+                aria-label={t('artworks.removeImage')}
               >
-                <X />
+                <X className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
 
             {/* File Info */}
-            <div className="text-sm space-y-1">
+            <div className="text-sm space-y-1" role="status" aria-label="Selected file information">
               <p className="font-medium truncate">{selectedFile.name}</p>
               <p className="text-muted-foreground">
                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
@@ -203,15 +216,15 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
 
             {/* Upload Progress */}
             {isUploading && (
-              <div className="space-y-2">
-                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div className="space-y-2" role="status" aria-live="polite" aria-label={t('artworks.uploading')}>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden" role="progressbar" aria-valuenow={uploadProgress} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     className="bg-primary h-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
                 <p className="text-xs text-center text-muted-foreground">
-                  Uploading... {uploadProgress}%
+                  {t('artworks.uploading')} {uploadProgress}%
                 </p>
               </div>
             )}
@@ -220,17 +233,18 @@ export function ArtworkUpload({ activityId, onSuccess }: ArtworkUploadProps) {
             <Button
               onClick={handleUpload}
               disabled={isUploading}
-              className="w-full"
+              className="w-full min-h-[44px]"
+              aria-label={isUploading ? t('artworks.uploading') : t('artworks.upload')}
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="animate-spin" />
-                  Uploading...
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
+                  {t('artworks.uploading')}
                 </>
               ) : (
                 <>
-                  <Upload />
-                  Upload Artwork
+                  <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
+                  {t('artworks.upload')}
                 </>
               )}
             </Button>
