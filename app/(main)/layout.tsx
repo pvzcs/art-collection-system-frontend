@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Toaster } from "sonner";
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { SettingsDialog } from '@/components/shared';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { logout as logoutApi } from '@/lib/api/auth';
 import { useRouter } from 'next/navigation';
@@ -17,7 +15,6 @@ export default function MainLayout({
 }) {
   const router = useRouter();
   const { clearAuth, isAdmin } = useAuthStore();
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -32,16 +29,12 @@ export default function MainLayout({
     }
   };
 
-  const handleOpenSettings = () => {
-    setSettingsOpen(true);
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       <a href="#main-content" className="skip-to-main">
         Skip to main content
       </a>
-      <Header onLogout={handleLogout} onOpenSettings={handleOpenSettings} />
+      <Header onLogout={handleLogout} />
 
       <div className="flex flex-1">
         <Sidebar isAdmin={isAdmin} />
@@ -53,7 +46,6 @@ export default function MainLayout({
         </main>
       </div>
 
-      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
       <Toaster
         position="top-right"
         duration={3000}

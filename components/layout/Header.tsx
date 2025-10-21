@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, X, Settings, LogOut, User, Shield } from 'lucide-react';
+import { Menu, X, LogOut, User, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -27,10 +27,9 @@ import { useTranslation } from '@/lib/i18n/useTranslation';
 
 interface HeaderProps {
   onLogout: () => void;
-  onOpenSettings?: () => void;
 }
 
-export function Header({ onLogout, onOpenSettings }: HeaderProps) {
+export function Header({ onLogout }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAdmin } = useAuthStore();
@@ -122,21 +121,9 @@ export function Header({ onLogout, onOpenSettings }: HeaderProps) {
           )}
         </nav>
 
-        {/* Desktop User Menu and Settings */}
+        {/* Desktop User Menu and Language Switcher */}
         <div className="hidden md:flex items-center space-x-2">
           <LanguageSwitcher />
-          
-          {onOpenSettings && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onOpenSettings}
-              aria-label={t('header.settings')}
-              className="min-h-[44px] min-w-[44px]"
-            >
-              <Settings className="h-5 w-5" aria-hidden="true" />
-            </Button>
-          )}
 
           {user && (
             <DropdownMenu>
@@ -173,18 +160,6 @@ export function Header({ onLogout, onOpenSettings }: HeaderProps) {
         {/* Mobile Menu Button */}
         <div className="flex md:hidden items-center space-x-2">
           <LanguageSwitcher />
-          
-          {onOpenSettings && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={onOpenSettings}
-              aria-label={t('header.settings')}
-              className="min-h-[44px] min-w-[44px]"
-            >
-              <Settings className="h-5 w-5" aria-hidden="true" />
-            </Button>
-          )}
           
           <Button
             variant="ghost"
