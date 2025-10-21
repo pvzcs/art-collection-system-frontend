@@ -29,23 +29,8 @@ apiClient.interceptors.request.use(
       }
     }
 
-    // Get API base URL from localStorage
-    const settingsData = localStorage.getItem('settings-storage');
-    if (settingsData) {
-      try {
-        const { state } = JSON.parse(settingsData);
-        if (state?.apiBaseUrl) {
-          config.baseURL = state.apiBaseUrl;
-        }
-      } catch (error) {
-        console.error('Failed to parse settings data:', error);
-      }
-    }
-
-    // Use default base URL if not configured
-    if (!config.baseURL) {
-      config.baseURL = process.env.NEXT_PUBLIC_DEFAULT_API_URL || 'http://localhost:8080/api/v1';
-    }
+    // Use API base URL from environment variable
+    config.baseURL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_DEFAULT_API_URL || 'http://localhost:8080/api/v1';
 
     return config;
   },
