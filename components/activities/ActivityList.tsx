@@ -2,6 +2,7 @@ import { Activity } from "@/lib/types/models";
 import { ActivityCard } from "./ActivityCard";
 import { Pagination } from "@/components/shared/Pagination";
 import { LoadingSkeleton } from "@/components/shared/LoadingSpinner";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface ActivityListProps {
   activities: Activity[];
@@ -21,6 +22,7 @@ export function ActivityList({
   onActivityClick,
   isLoading = false,
 }: ActivityListProps) {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -36,9 +38,9 @@ export function ActivityList({
   if (activities.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center" role="status" aria-live="polite">
-        <p className="text-lg text-muted-foreground">No activities found</p>
+        <p className="text-lg text-muted-foreground">{t('activities.noActivities')}</p>
         <p className="text-sm text-muted-foreground mt-2">
-          Check back later for new art collection activities
+          {t('activities.checkBackLater')}
         </p>
       </div>
     );
@@ -56,7 +58,7 @@ export function ActivityList({
           </div>
         ))}
       </div>
-      
+
       <Pagination
         currentPage={pagination.currentPage}
         totalPages={pagination.totalPages}
