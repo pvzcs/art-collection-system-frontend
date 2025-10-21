@@ -1,5 +1,6 @@
-// Domain model types
-
+/**
+ * User model representing a registered user in the system
+ */
 export interface User {
   id: number;
   email: string;
@@ -9,6 +10,9 @@ export interface User {
   updated_at?: string;
 }
 
+/**
+ * Activity model representing an art collection event
+ */
 export interface Activity {
   id: number;
   name: string;
@@ -19,6 +23,9 @@ export interface Activity {
   updated_at: string;
 }
 
+/**
+ * Artwork model representing an uploaded image submission
+ */
 export interface Artwork {
   id: number;
   activity_id: number;
