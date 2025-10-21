@@ -22,6 +22,7 @@ import { Activity } from '@/lib/types/models';
 import { ActivityFormData } from '@/lib/types/forms';
 import { Pencil, Trash2, Plus } from 'lucide-react';
 import { formatDate } from '@/lib/utils/formatters';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 interface ActivityManagementProps {
   activities: Activity[];
@@ -40,6 +41,7 @@ export function ActivityManagement({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const { t } = useTranslation();
 
   const handleCreate = async (data: ActivityFormData) => {
     await onCreateActivity(data);
@@ -75,10 +77,10 @@ export function ActivityManagement({
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h2 className="text-2xl font-bold">Activity Management</h2>
+        <h2 className="text-2xl font-bold">{t('admin.activityManagement')}</h2>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="min-h-[44px] w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
-          Create Activity
+          {t('admin.createActivity')}
         </Button>
       </div>
 
@@ -87,18 +89,18 @@ export function ActivityManagement({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Deadline</TableHead>
-              <TableHead>Max Uploads</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('common.name')}</TableHead>
+              <TableHead>{t('admin.deadline')}</TableHead>
+              <TableHead>{t('admin.maxUploads')}</TableHead>
+              <TableHead>{t('common.created')}</TableHead>
+              <TableHead className="text-right">{t('common.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {activities.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                  No activities found. Create your first activity to get started.
+                  {t('admin.noActivitiesFound')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -108,7 +110,7 @@ export function ActivityManagement({
                   <TableCell>
                     {activity.deadline
                       ? formatDate(activity.deadline)
-                      : 'Long-term'}
+                      : t('admin.longTerm')}
                   </TableCell>
                   <TableCell>{activity.max_uploads_per_user}</TableCell>
                   <TableCell>{formatDate(activity.created_at)}</TableCell>
@@ -118,7 +120,7 @@ export function ActivityManagement({
                         variant="outline"
                         size="icon"
                         onClick={() => openEditDialog(activity)}
-                        title="Edit activity"
+                        title={t('admin.editActivity')}
                         className="min-h-[44px] min-w-[44px]"
                       >
                         <Pencil className="h-4 w-4" />
@@ -127,7 +129,7 @@ export function ActivityManagement({
                         variant="destructive"
                         size="icon"
                         onClick={() => openDeleteDialog(activity)}
-                        title="Delete activity"
+                        title={t('admin.deleteActivity')}
                         className="min-h-[44px] min-w-[44px]"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -155,25 +157,25 @@ export function ActivityManagement({
             >
               <div className="space-y-2">
                 <div>
-                  <p className="text-xs text-muted-foreground">Name</p>
+                  <p className="text-xs text-muted-foreground">{t('common.name')}</p>
                   <p className="font-medium">{activity.name}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <p className="text-xs text-muted-foreground">Deadline</p>
+                    <p className="text-xs text-muted-foreground">{t('admin.deadline')}</p>
                     <p className="text-sm">
                       {activity.deadline
                         ? formatDate(activity.deadline)
-                        : 'Long-term'}
+                        : t('admin.longTerm')}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Max Uploads</p>
+                    <p className="text-xs text-muted-foreground">{t('admin.maxUploads')}</p>
                     <p className="text-sm">{activity.max_uploads_per_user}</p>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Created</p>
+                  <p className="text-xs text-muted-foreground">{t('common.created')}</p>
                   <p className="text-sm">{formatDate(activity.created_at)}</p>
                 </div>
               </div>
@@ -185,7 +187,7 @@ export function ActivityManagement({
                   onClick={() => openEditDialog(activity)}
                 >
                   <Pencil className="h-4 w-4 mr-2" />
-                  Edit
+                  {t('common.edit')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -193,7 +195,7 @@ export function ActivityManagement({
                   onClick={() => openDeleteDialog(activity)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
+                  {t('common.delete')}
                 </Button>
               </div>
             </div>
@@ -205,9 +207,9 @@ export function ActivityManagement({
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create New Activity</DialogTitle>
+            <DialogTitle>{t('admin.createNewActivity')}</DialogTitle>
             <DialogDescription>
-              Fill in the details to create a new art collection activity.
+              {t('admin.fillDetails')}
             </DialogDescription>
           </DialogHeader>
           <ActivityForm
@@ -221,9 +223,9 @@ export function ActivityManagement({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Activity</DialogTitle>
+            <DialogTitle>{t('admin.editActivity')}</DialogTitle>
             <DialogDescription>
-              Update the activity details below.
+              {t('admin.updateDetails')}
             </DialogDescription>
           </DialogHeader>
           {selectedActivity && (
