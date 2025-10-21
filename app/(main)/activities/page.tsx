@@ -67,12 +67,12 @@ function ActivitiesPageContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-6">
-        <div>
+        <header>
           <h1 className="text-3xl font-bold">Art Collection Activities</h1>
           <p className="text-muted-foreground mt-2">
             Browse and participate in ongoing art collection events
           </p>
-        </div>
+        </header>
 
         <ActivityList
           activities={activities}
