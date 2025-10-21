@@ -71,22 +71,23 @@ export function Pagination({
   }
 
   return (
-    <div className={`flex items-center justify-center gap-2 ${className}`}>
+    <div className={`flex items-center justify-center gap-2 flex-wrap ${className}`}>
       <Button
         variant="outline"
         size="icon"
         onClick={handlePrevious}
         disabled={!canGoPrevious}
         aria-label="Previous page"
+        className="min-h-[44px] min-w-[44px]"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 flex-wrap justify-center">
         {getPageNumbers().map((page, index) => {
           if (page === "...") {
             return (
-              <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
+              <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground min-h-[44px] flex items-center">
                 ...
               </span>
             );
@@ -100,6 +101,7 @@ export function Pagination({
               onClick={() => onPageChange(page as number)}
               aria-label={`Page ${page}`}
               aria-current={currentPage === page ? "page" : undefined}
+              className="min-h-[44px] min-w-[44px]"
             >
               {page}
             </Button>
@@ -113,6 +115,7 @@ export function Pagination({
         onClick={handleNext}
         disabled={!canGoNext}
         aria-label="Next page"
+        className="min-h-[44px] min-w-[44px]"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
