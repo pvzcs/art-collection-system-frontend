@@ -8,6 +8,7 @@ import { getActivities } from "@/lib/api/activities";
 import { Activity } from "@/lib/types/models";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function ActivitiesPage() {
   return (
@@ -19,6 +20,7 @@ export default function ActivitiesPage() {
 
 function ActivitiesPageContent() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -35,10 +37,10 @@ function ActivitiesPageContent() {
         setTotalPages(Math.ceil(response.data.total / pageSize));
         setCurrentPage(page);
       } else {
-        toast.error(response.message || "Failed to load activities");
+        toast.error(response.message || t('activities.loadingActivities'));
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to load activities");
+      toast.error(error.response?.data?.message || t('errors.loadFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +61,7 @@ function ActivitiesPageContent() {
   if (isLoading && activities.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" text="Loading activities..." />
+        <LoadingSpinner size="lg" text={t('activities.loadingActivities')} />
       </div>
     );
   }
@@ -68,9 +70,9 @@ function ActivitiesPageContent() {
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-6">
         <header>
-          <h1 className="text-3xl font-bold">Art Collection Activities</h1>
+          <h1 className="text-3xl font-bold">{t('activities.title')}</h1>
           <p className="text-muted-foreground mt-2">
-            Browse and participate in ongoing art collection events
+            {t('activities.description')}
           </p>
         </header>
 
