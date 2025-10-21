@@ -29,7 +29,7 @@ function ActivitiesPageContent() {
     try {
       setIsLoading(true);
       const response = await getActivities({ page, page_size: pageSize });
-      
+
       if (response.code === 0 && response.data) {
         setActivities(response.data.activities);
         setTotalPages(Math.ceil(response.data.total / pageSize));
