@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { sendCode, register } from '@/lib/api/auth';
 import { toast } from 'sonner';
+import { registerSchema, RegisterFormData } from '@/lib/utils/validation';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -13,30 +16,30 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [password, setPassword] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [error, setError] = useState('');
+
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    watch,
+    trigger,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const email = watch('email');
 
   const handleSendCode = async () => {
-    if (!email) {
-      setError('Please enter your email address');
-      return;
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
+    // Validate email field first
+    const isEmailValid = await trigger('email');
+    if (!isEmailValid) {
       return;
     }
 
     setIsSendingCode(true);
-    setError('');
 
     try {
       await sendCode(email);
@@ -55,37 +58,16 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       }, 1000);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Failed to send verification code';
-      setError(errorMessage);
+      setError('email', { message: errorMessage });
       toast.error(errorMessage);
     } finally {
       setIsSendingCode(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    // Validation
-    if (!email || !code || !password || !nickname) {
-      setError('All fields are required');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
-    setIsLoading(true);
-
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await register({
-        email,
-        code,
-        password,
-        nickname,
-      });
+      await register(data);
 
       toast.success('Registration successful! Please log in.');
       
@@ -96,40 +78,48 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       }
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Registration failed';
-      setError(errorMessage);
+      setError('root', { message: errorMessage });
       toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4" aria-label="Registration form">
       <div className="space-y-2">
         <label htmlFor="email" className="text-sm font-medium">
           Email
         </label>
         <div className="flex gap-2">
-          <Input
-            id="email"
-            type="email"
-            placeholder="your@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
-            required
-            className="flex-1"
-          />
+          <div className="flex-1 space-y-1">
+            <Input
+              id="email"
+              type="email"
+              placeholder="your@email.com"
+              {...registerField('email')}
+              disabled={isSubmitting}
+              className="w-full"
+              aria-required="true"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : 'email-help'}
+            />
+            {errors.email && (
+              <p id="email-error" className="text-sm text-destructive" role="alert">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
           <Button
             type="button"
             onClick={handleSendCode}
-            disabled={isSendingCode || countdown > 0 || isLoading}
+            disabled={isSendingCode || countdown > 0 || isSubmitting}
             variant="outline"
-            className="shrink-0"
+            className="shrink-0 min-h-[44px]"
+            aria-label={countdown > 0 ? `Resend code in ${countdown} seconds` : 'Send verification code'}
           >
             {countdown > 0 ? `${countdown}s` : isSendingCode ? 'Sending...' : 'Send Code'}
           </Button>
         </div>
+        <p id="email-help" className="sr-only">Enter your email address to receive a verification code</p>
       </div>
 
       <div className="space-y-2">
@@ -140,12 +130,19 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           id="code"
           type="text"
           placeholder="Enter 6-digit code"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          disabled={isLoading}
-          required
+          {...registerField('code')}
+          disabled={isSubmitting}
           maxLength={6}
+          aria-required="true"
+          aria-invalid={!!errors.code}
+          aria-describedby={errors.code ? 'code-error' : 'code-help'}
         />
+        {errors.code && (
+          <p id="code-error" className="text-sm text-destructive" role="alert">
+            {errors.code.message}
+          </p>
+        )}
+        <p id="code-help" className="sr-only">Enter the 6-digit verification code sent to your email</p>
       </div>
 
       <div className="space-y-2">
@@ -156,11 +153,17 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           id="nickname"
           type="text"
           placeholder="Your display name"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          disabled={isLoading}
-          required
+          {...registerField('nickname')}
+          disabled={isSubmitting}
+          aria-required="true"
+          aria-invalid={!!errors.nickname}
+          aria-describedby={errors.nickname ? 'nickname-error' : undefined}
         />
+        {errors.nickname && (
+          <p id="nickname-error" className="text-sm text-destructive" role="alert">
+            {errors.nickname.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -171,22 +174,28 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           id="password"
           type="password"
           placeholder="At least 6 characters"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isLoading}
-          required
-          minLength={6}
+          {...registerField('password')}
+          disabled={isSubmitting}
+          aria-required="true"
+          aria-invalid={!!errors.password}
+          aria-describedby={errors.password ? 'password-error' : 'password-help'}
         />
+        {errors.password && (
+          <p id="password-error" className="text-sm text-destructive" role="alert">
+            {errors.password.message}
+          </p>
+        )}
+        <p id="password-help" className="sr-only">Password must be at least 6 characters long</p>
       </div>
 
-      {error && (
-        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-          {error}
+      {errors.root && (
+        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md" role="alert" aria-live="polite">
+          {errors.root.message}
         </div>
       )}
 
-      <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? 'Registering...' : 'Register'}
+      <Button type="submit" disabled={isSubmitting} className="w-full min-h-[44px]" aria-label={isSubmitting ? 'Registering account' : 'Register new account'}>
+        {isSubmitting ? 'Registering...' : 'Register'}
       </Button>
     </form>
   );

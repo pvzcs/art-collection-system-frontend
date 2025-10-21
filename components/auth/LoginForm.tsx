@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { login } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { toast } from 'sonner';
+import { loginSchema, LoginFormData } from '@/lib/utils/validation';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -16,25 +18,19 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
-    // Validation
-    if (!email || !password) {
-      setError('Email and password are required');
-      return;
-    }
-
-    setIsLoading(true);
-
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await login({ email, password });
+      const response = await login(data);
       
       if (response.data) {
         // Store auth data in Zustand store
@@ -50,15 +46,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       }
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Login failed';
-      setError(errorMessage);
+      setError('root', { message: errorMessage });
       toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4" aria-label="Login form">
       <div className="space-y-2">
         <label htmlFor="email" className="text-sm font-medium">
           Email
@@ -67,12 +61,18 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           id="email"
           type="email"
           placeholder="your@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={isLoading}
-          required
+          {...register('email')}
+          disabled={isSubmitting}
           autoComplete="email"
+          aria-required="true"
+          aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? 'email-error' : undefined}
         />
+        {errors.email && (
+          <p id="email-error" className="text-sm text-destructive" role="alert">
+            {errors.email.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -83,22 +83,28 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           id="password"
           type="password"
           placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isLoading}
-          required
+          {...register('password')}
+          disabled={isSubmitting}
           autoComplete="current-password"
+          aria-required="true"
+          aria-invalid={!!errors.password}
+          aria-describedby={errors.password ? 'password-error' : undefined}
         />
+        {errors.password && (
+          <p id="password-error" className="text-sm text-destructive" role="alert">
+            {errors.password.message}
+          </p>
+        )}
       </div>
 
-      {error && (
-        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-          {error}
+      {errors.root && (
+        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md" role="alert" aria-live="polite">
+          {errors.root.message}
         </div>
       )}
 
-      <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? 'Logging in...' : 'Log In'}
+      <Button type="submit" disabled={isSubmitting} className="w-full min-h-[44px]" aria-label={isSubmitting ? 'Logging in' : 'Log in to your account'}>
+        {isSubmitting ? 'Logging in...' : 'Log In'}
       </Button>
 
       <div className="text-center text-sm text-muted-foreground">
