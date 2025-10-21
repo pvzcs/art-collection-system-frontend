@@ -57,8 +57,8 @@ export function ArtworkList({
   // Empty state
   if (artworks.length === 0) {
     return (
-      <div className={cn("flex flex-col items-center justify-center py-12", className)}>
-        <div className="rounded-full bg-muted p-6 mb-4">
+      <div className={cn("flex flex-col items-center justify-center py-12", className)} role="status" aria-live="polite">
+        <div className="rounded-full bg-muted p-6 mb-4" aria-hidden="true">
           <ImageOff className="h-12 w-12 text-muted-foreground" />
         </div>
         <h3 className="text-lg font-semibold mb-2">No artworks found</h3>
@@ -72,15 +72,16 @@ export function ArtworkList({
   return (
     <div className={cn("space-y-6", className)}>
       {/* Artwork Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" role="list" aria-label="Artworks gallery">
         {artworks.map((artwork) => (
-          <ArtworkCard
-            key={artwork.id}
-            artwork={artwork}
-            showActivity={showActivity}
-            showUser={showUser}
-            onDelete={onDelete ? () => onDelete(artwork.id) : undefined}
-          />
+          <div key={artwork.id} role="listitem">
+            <ArtworkCard
+              artwork={artwork}
+              showActivity={showActivity}
+              showUser={showUser}
+              onDelete={onDelete ? () => onDelete(artwork.id) : undefined}
+            />
+          </div>
         ))}
       </div>
 

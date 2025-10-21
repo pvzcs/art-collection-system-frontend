@@ -69,8 +69,10 @@ export function ArtworkImage({ artworkId, alt, className }: ArtworkImageProps) {
           "flex flex-col items-center justify-center gap-2 bg-muted rounded-md aspect-square",
           className
         )}
+        role="img"
+        aria-label="Access denied to artwork image"
       >
-        <ImageOff className="h-8 w-8 text-muted-foreground" />
+        <ImageOff className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
         <p className="text-xs text-muted-foreground text-center px-2">
           Access Denied
         </p>
@@ -85,8 +87,10 @@ export function ArtworkImage({ artworkId, alt, className }: ArtworkImageProps) {
           "flex flex-col items-center justify-center gap-2 bg-muted rounded-md aspect-square",
           className
         )}
+        role="img"
+        aria-label="Failed to load artwork image"
       >
-        <ImageOff className="h-8 w-8 text-muted-foreground" />
+        <ImageOff className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
         <p className="text-xs text-muted-foreground text-center px-2">
           Failed to load image
         </p>
