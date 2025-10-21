@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { sendCode, register } from '@/lib/api/auth';
 import { toast } from 'sonner';
 import { registerSchema, RegisterFormData } from '@/lib/utils/validation';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -18,6 +19,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const router = useRouter();
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const { t } = useTranslation();
 
   const {
     register: registerField,
@@ -43,7 +45,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
     try {
       await sendCode(email);
-      toast.success('Verification code sent to your email');
+      toast.success(t('auth.codeSent'));
       
       // Start countdown timer (60 seconds)
       setCountdown(60);
@@ -57,7 +59,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         });
       }, 1000);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to send verification code';
+      const errorMessage = err.response?.data?.message || t('auth.sendCodeFailed');
       setError('email', { message: errorMessage });
       toast.error(errorMessage);
     } finally {
@@ -69,7 +71,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     try {
       await register(data);
 
-      toast.success('Registration successful! Please log in.');
+      toast.success(t('auth.registerSuccess') + '! ' + t('auth.loginDescription'));
       
       if (onSuccess) {
         onSuccess();
@@ -77,7 +79,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         router.push('/login');
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Registration failed';
+      const errorMessage = err.response?.data?.message || t('auth.registerFailed');
       setError('root', { message: errorMessage });
       toast.error(errorMessage);
     }
@@ -87,14 +89,14 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4" aria-label="Registration form">
       <div className="space-y-2">
         <label htmlFor="email" className="text-sm font-medium">
-          Email
+          {t('auth.email')}
         </label>
         <div className="flex gap-2">
           <div className="flex-1 space-y-1">
             <Input
               id="email"
               type="email"
-              placeholder="your@email.com"
+              placeholder={t('auth.emailPlaceholder')}
               {...registerField('email')}
               disabled={isSubmitting}
               className="w-full"
@@ -114,22 +116,22 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             disabled={isSendingCode || countdown > 0 || isSubmitting}
             variant="outline"
             className="shrink-0 min-h-[44px]"
-            aria-label={countdown > 0 ? `Resend code in ${countdown} seconds` : 'Send verification code'}
+            aria-label={countdown > 0 ? `${t('auth.codeResend')} ${countdown}s` : t('auth.sendingCode')}
           >
-            {countdown > 0 ? `${countdown}s` : isSendingCode ? 'Sending...' : 'Send Code'}
+            {countdown > 0 ? `${countdown}s` : isSendingCode ? t('auth.sending') : t('auth.sendCode')}
           </Button>
         </div>
-        <p id="email-help" className="sr-only">Enter your email address to receive a verification code</p>
+        <p id="email-help" className="sr-only">{t('auth.enterEmail')}</p>
       </div>
 
       <div className="space-y-2">
         <label htmlFor="code" className="text-sm font-medium">
-          Verification Code
+          {t('auth.verificationCode')}
         </label>
         <Input
           id="code"
           type="text"
-          placeholder="Enter 6-digit code"
+          placeholder={t('auth.codePlaceholder')}
           {...registerField('code')}
           disabled={isSubmitting}
           maxLength={6}
@@ -142,17 +144,17 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             {errors.code.message}
           </p>
         )}
-        <p id="code-help" className="sr-only">Enter the 6-digit verification code sent to your email</p>
+        <p id="code-help" className="sr-only">{t('auth.enterCode')}</p>
       </div>
 
       <div className="space-y-2">
         <label htmlFor="nickname" className="text-sm font-medium">
-          Nickname
+          {t('auth.nickname')}
         </label>
         <Input
           id="nickname"
           type="text"
-          placeholder="Your display name"
+          placeholder={t('auth.nicknamePlaceholder')}
           {...registerField('nickname')}
           disabled={isSubmitting}
           aria-required="true"
@@ -168,12 +170,12 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
       <div className="space-y-2">
         <label htmlFor="password" className="text-sm font-medium">
-          Password
+          {t('auth.password')}
         </label>
         <Input
           id="password"
           type="password"
-          placeholder="At least 6 characters"
+          placeholder={t('auth.atLeastChars')}
           {...registerField('password')}
           disabled={isSubmitting}
           aria-required="true"
@@ -185,7 +187,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             {errors.password.message}
           </p>
         )}
-        <p id="password-help" className="sr-only">Password must be at least 6 characters long</p>
+        <p id="password-help" className="sr-only">{t('auth.passwordMinLength')}</p>
       </div>
 
       {errors.root && (
@@ -194,8 +196,8 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         </div>
       )}
 
-      <Button type="submit" disabled={isSubmitting} className="w-full min-h-[44px]" aria-label={isSubmitting ? 'Registering account' : 'Register new account'}>
-        {isSubmitting ? 'Registering...' : 'Register'}
+      <Button type="submit" disabled={isSubmitting} className="w-full min-h-[44px]" aria-label={isSubmitting ? t('auth.registering') : t('auth.registerButton')}>
+        {isSubmitting ? t('auth.registering') : t('auth.registerButton')}
       </Button>
     </form>
   );

@@ -10,6 +10,7 @@ import { login } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { toast } from 'sonner';
 import { loginSchema, LoginFormData } from '@/lib/utils/validation';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -18,6 +19,7 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const { t } = useTranslation();
 
   const {
     register,
@@ -36,7 +38,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         // Store auth data in Zustand store
         setAuth(response.data.token, response.data.user);
         
-        toast.success('Login successful!');
+        toast.success(t('auth.loginSuccess'));
         
         if (onSuccess) {
           onSuccess();
@@ -45,7 +47,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         }
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
+      const errorMessage = err.response?.data?.message || t('auth.loginFailed');
       setError('root', { message: errorMessage });
       toast.error(errorMessage);
     }
@@ -55,12 +57,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4" aria-label="Login form">
       <div className="space-y-2">
         <label htmlFor="email" className="text-sm font-medium">
-          Email
+          {t('auth.email')}
         </label>
         <Input
           id="email"
           type="email"
-          placeholder="your@email.com"
+          placeholder={t('auth.emailPlaceholder')}
           {...register('email')}
           disabled={isSubmitting}
           autoComplete="email"
@@ -77,12 +79,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       <div className="space-y-2">
         <label htmlFor="password" className="text-sm font-medium">
-          Password
+          {t('auth.password')}
         </label>
         <Input
           id="password"
           type="password"
-          placeholder="Enter your password"
+          placeholder={t('auth.passwordPlaceholder')}
           {...register('password')}
           disabled={isSubmitting}
           autoComplete="current-password"
@@ -103,14 +105,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         </div>
       )}
 
-      <Button type="submit" disabled={isSubmitting} className="w-full min-h-[44px]" aria-label={isSubmitting ? 'Logging in' : 'Log in to your account'}>
-        {isSubmitting ? 'Logging in...' : 'Log In'}
+      <Button type="submit" disabled={isSubmitting} className="w-full min-h-[44px]" aria-label={isSubmitting ? t('auth.loggingIn') : t('auth.loginButton')}>
+        {isSubmitting ? t('auth.loggingIn') : t('auth.loginButton')}
       </Button>
 
       <div className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{' '}
+        {t('auth.noAccount')}{' '}
         <Link href="/register" className="text-primary hover:underline font-medium">
-          Register here
+          {t('auth.registerHere')}
         </Link>
       </div>
     </form>
