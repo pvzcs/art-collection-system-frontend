@@ -20,9 +20,10 @@ import {
 import { ActivityForm } from '@/components/activities/ActivityForm';
 import { Activity } from '@/lib/types/models';
 import { ActivityFormData } from '@/lib/types/forms';
-import { Pencil, Trash2, Plus } from 'lucide-react';
+import { Pencil, Trash2, Plus, Eye } from 'lucide-react';
 import { formatDate } from '@/lib/utils/formatters';
 import { useTranslation } from '@/lib/i18n/useTranslation';
+import { ActivityArtworks } from './ActivityArtworks';
 
 interface ActivityManagementProps {
   activities: Activity[];
@@ -40,6 +41,7 @@ export function ActivityManagement({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isArtworksDialogOpen, setIsArtworksDialogOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const { t } = useTranslation();
 
@@ -72,6 +74,11 @@ export function ActivityManagement({
   const openDeleteDialog = (activity: Activity) => {
     setSelectedActivity(activity);
     setIsDeleteDialogOpen(true);
+  };
+
+  const openArtworksDialog = (activity: Activity) => {
+    setSelectedActivity(activity);
+    setIsArtworksDialogOpen(true);
   };
 
   return (
@@ -116,6 +123,15 @@ export function ActivityManagement({
                   <TableCell>{formatDate(activity.created_at)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => openArtworksDialog(activity)}
+                        title={t('admin.viewArtworks')}
+                        className="min-h-[44px] min-w-[44px]"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="icon"
@@ -184,6 +200,14 @@ export function ActivityManagement({
                 <Button
                   variant="outline"
                   className="flex-1 min-h-[44px]"
+                  onClick={() => openArtworksDialog(activity)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  {t('admin.viewArtworks')}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 min-h-[44px]"
                   onClick={() => openEditDialog(activity)}
                 >
                   <Pencil className="h-4 w-4 mr-2" />
@@ -245,10 +269,9 @@ export function ActivityManagement({
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Activity</DialogTitle>
+            <DialogTitle>{t('admin.deleteActivity')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &quot;{selectedActivity?.name}&quot;? This action
-              cannot be undone and will affect all associated artworks.
+              {t('admin.deleteConfirm').replace('{name}', selectedActivity?.name || '')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-3 mt-4">
@@ -259,14 +282,28 @@ export function ActivityManagement({
                 setSelectedActivity(null);
               }}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
-              Delete Activity
+              {t('admin.deleteActivityButton')}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Activity Artworks Dialog */}
+      {selectedActivity && (
+        <ActivityArtworks
+          activity={selectedActivity}
+          open={isArtworksDialogOpen}
+          onOpenChange={(open) => {
+            setIsArtworksDialogOpen(open);
+            if (!open) {
+              setSelectedActivity(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

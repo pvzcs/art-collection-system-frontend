@@ -87,3 +87,26 @@ export const getUserStatistics = async (userId: number): Promise<ApiResponse<{
   }>>(`/admin/users/${userId}/statistics`);
   return response.data;
 };
+
+/**
+ * Get all artworks for a specific activity (admin only)
+ * @param activityId - Activity ID
+ * @param params - Pagination parameters
+ * @returns Promise with paginated artworks response
+ */
+export const getActivityArtworks = async (activityId: number, params?: PaginationParams): Promise<ApiResponse<{ 
+  artworks: Artwork[]; 
+  total: number; 
+  page: number; 
+  page_size: number 
+}>> => {
+  const response = await apiClient.get<ApiResponse<{ 
+    artworks: Artwork[]; 
+    total: number; 
+    page: number; 
+    page_size: number 
+  }>>(`/admin/activities/${activityId}/artworks`, {
+    params,
+  });
+  return response.data;
+};
