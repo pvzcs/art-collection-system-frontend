@@ -23,6 +23,7 @@ import { formatDate } from '@/lib/utils/formatters';
 import { ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 interface UserManagementProps {
   users: User[];
@@ -42,6 +43,7 @@ export function UserManagement({
   onRoleChange,
 }: UserManagementProps) {
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
+  const { t } = useTranslation();
 
   const totalPages = Math.ceil(pagination.total / pagination.page_size);
 
@@ -49,10 +51,10 @@ export function UserManagement({
     try {
       setUpdatingUserId(userId);
       await onRoleChange(userId, newRole);
-      toast.success('User role updated successfully');
+      toast.success(t('admin.userRoleUpdated'));
     } catch (error: any) {
       console.error('Failed to update user role:', error);
-      toast.error(error.response?.data?.message || 'Failed to update user role');
+      toast.error(error.response?.data?.message || t('admin.userRoleFailed'));
     } finally {
       setUpdatingUserId(null);
     }
@@ -61,7 +63,7 @@ export function UserManagement({
   if (users.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">No users found</p>
+        <p className="text-muted-foreground">{t('admin.noUsersFound')}</p>
       </div>
     );
   }
@@ -73,11 +75,11 @@ export function UserManagement({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Email</TableHead>
-              <TableHead>Nickname</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Registered</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('auth.email')}</TableHead>
+              <TableHead>{t('auth.nickname')}</TableHead>
+              <TableHead>{t('admin.role')}</TableHead>
+              <TableHead>{t('admin.registered')}</TableHead>
+              <TableHead className="text-right">{t('common.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -97,8 +99,8 @@ export function UserManagement({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="user">{t('admin.user')}</SelectItem>
+                      <SelectItem value="admin">{t('admin.admin')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>
@@ -112,7 +114,7 @@ export function UserManagement({
                   >
                     <Link href={`/users/${user.id}`}>
                       <ExternalLink className="h-4 w-4 mr-2" />
-                      View Space
+                      {t('admin.viewSpace')}
                     </Link>
                   </Button>
                 </TableCell>
@@ -131,21 +133,21 @@ export function UserManagement({
           >
             <div className="space-y-2">
               <div>
-                <p className="text-xs text-muted-foreground">Email</p>
+                <p className="text-xs text-muted-foreground">{t('auth.email')}</p>
                 <p className="font-medium break-all">{user.email}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Nickname</p>
+                <p className="text-xs text-muted-foreground">{t('auth.nickname')}</p>
                 <p className="font-medium">{user.nickname}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Registered</p>
+                <p className="text-xs text-muted-foreground">{t('admin.registered')}</p>
                 <p className="text-sm">{formatDate(user.created_at)}</p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Role</p>
+              <p className="text-xs text-muted-foreground">{t('admin.role')}</p>
               <Select
                 value={user.role}
                 onValueChange={(value) =>
@@ -157,8 +159,8 @@ export function UserManagement({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="user">{t('admin.user')}</SelectItem>
+                  <SelectItem value="admin">{t('admin.admin')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -170,7 +172,7 @@ export function UserManagement({
             >
               <Link href={`/users/${user.id}`}>
                 <ExternalLink className="h-4 w-4 mr-2" />
-                View Space
+                {t('admin.viewSpace')}
               </Link>
             </Button>
           </div>
