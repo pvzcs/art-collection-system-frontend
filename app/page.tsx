@@ -9,10 +9,12 @@ import { useAuthStore } from '@/lib/stores/authStore';
 import { getActivities } from '@/lib/api/activities';
 import { Activity } from '@/lib/types/models';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export default function Home() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
+  const { t } = useTranslation();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,33 +40,33 @@ export default function Home() {
       {/* Hero Section */}
       <section className="text-center space-y-4 py-12" aria-labelledby="hero-heading">
         <h1 id="hero-heading" className="text-4xl md:text-5xl font-bold tracking-tight">
-          Welcome to Art Collection
+          {t('home.heroTitle')}
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           {isAuthenticated
-            ? `Hello, ${user?.nickname}! Explore activities and share your artwork with the community.`
-            : 'Discover art activities, share your creativity, and connect with fellow artists.'}
+            ? t('home.heroDescriptionAuth').replace('{nickname}', user?.nickname || '')
+            : t('home.heroDescriptionGuest')}
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
           {isAuthenticated ? (
             <>
-              <Button size="lg" onClick={() => router.push('/activities')} className="min-h-[44px]" aria-label="Browse all activities">
-                Browse Activities
+              <Button size="lg" onClick={() => router.push('/activities')} className="min-h-[44px]" aria-label={t('home.browseActivities')}>
+                {t('home.browseActivities')}
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => router.push('/profile')} className="min-h-[44px]" aria-label="Go to my profile">
-                My Profile
+              <Button size="lg" variant="outline" onClick={() => router.push('/profile')} className="min-h-[44px]" aria-label={t('home.myProfile')}>
+                {t('home.myProfile')}
               </Button>
             </>
           ) : (
             <>
-              <Button size="lg" onClick={() => router.push('/register')} className="min-h-[44px]" aria-label="Get started by creating an account">
-                Get Started
+              <Button size="lg" onClick={() => router.push('/register')} className="min-h-[44px]" aria-label={t('home.getStarted')}>
+                {t('home.getStarted')}
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => router.push('/login')} className="min-h-[44px]" aria-label="Login to your account">
-                Login
+              <Button size="lg" variant="outline" onClick={() => router.push('/login')} className="min-h-[44px]" aria-label={t('home.login')}>
+                {t('home.login')}
               </Button>
             </>
           )}
@@ -73,13 +75,13 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="grid md:grid-cols-3 gap-6" aria-labelledby="features-heading">
-        <h2 id="features-heading" className="sr-only">Features</h2>
+        <h2 id="features-heading" className="sr-only">{t('home.featuresTitle')}</h2>
         <Card>
           <CardHeader>
             <Calendar className="h-10 w-10 text-primary mb-2" aria-hidden="true" />
-            <CardTitle>Art Activities</CardTitle>
+            <CardTitle>{t('home.artActivitiesTitle')}</CardTitle>
             <CardDescription>
-              Participate in various art collection activities with different themes and deadlines
+              {t('home.artActivitiesDesc')}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -87,9 +89,9 @@ export default function Home() {
         <Card>
           <CardHeader>
             <ImageIcon className="h-10 w-10 text-primary mb-2" aria-hidden="true" />
-            <CardTitle>Share Your Art</CardTitle>
+            <CardTitle>{t('home.shareArtTitle')}</CardTitle>
             <CardDescription>
-              Upload your artwork to activities and showcase your creativity to the community
+              {t('home.shareArtDesc')}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -97,9 +99,9 @@ export default function Home() {
         <Card>
           <CardHeader>
             <Users className="h-10 w-10 text-primary mb-2" aria-hidden="true" />
-            <CardTitle>Personal Space</CardTitle>
+            <CardTitle>{t('home.personalSpaceTitle')}</CardTitle>
             <CardDescription>
-              Manage your submissions and track your participation across all activities
+              {t('home.personalSpaceDesc')}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -109,13 +111,13 @@ export default function Home() {
       <section className="space-y-4" aria-labelledby="recent-activities-heading">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 id="recent-activities-heading" className="text-2xl font-bold">Recent Activities</h2>
+            <h2 id="recent-activities-heading" className="text-2xl font-bold">{t('home.recentActivitiesTitle')}</h2>
             <p className="text-muted-foreground">
-              Check out the latest art collection activities
+              {t('home.recentActivitiesDesc')}
             </p>
           </div>
-          <Button variant="outline" onClick={() => router.push('/activities')} className="min-h-[44px] w-full sm:w-auto" aria-label="View all activities">
-            View All
+          <Button variant="outline" onClick={() => router.push('/activities')} className="min-h-[44px] w-full sm:w-auto" aria-label={t('home.viewAll')}>
+            {t('home.viewAll')}
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
@@ -139,23 +141,23 @@ export default function Home() {
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" aria-hidden="true" />
                       {activity.deadline ? (
-                        <span>Deadline: {new Date(activity.deadline).toLocaleDateString()}</span>
+                        <span>{t('home.deadline')}: {new Date(activity.deadline).toLocaleDateString()}</span>
                       ) : (
-                        <span>Long-term Activity</span>
+                        <span>{t('home.longTermActivity')}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
                       <ImageIcon className="h-4 w-4" aria-hidden="true" />
-                      <span>Max {activity.max_uploads_per_user} uploads per user</span>
+                      <span>{t('home.maxUploads').replace('{count}', activity.max_uploads_per_user.toString())}</span>
                     </div>
                   </div>
                   <Button
                     className="w-full mt-4 min-h-[44px]"
                     variant="outline"
                     onClick={() => router.push(`/activities/${activity.id}`)}
-                    aria-label={`View details for ${activity.name}`}
+                    aria-label={`${t('home.viewDetails')} - ${activity.name}`}
                   >
-                    View Details
+                    {t('home.viewDetails')}
                   </Button>
                 </CardContent>
               </Card>
@@ -164,7 +166,7 @@ export default function Home() {
         ) : (
           <Card>
             <CardContent className="py-12 text-center" role="status">
-              <p className="text-muted-foreground">No activities available at the moment.</p>
+              <p className="text-muted-foreground">{t('home.noActivities')}</p>
             </CardContent>
           </Card>
         )}
@@ -173,12 +175,12 @@ export default function Home() {
       {/* CTA Section */}
       {!isAuthenticated && (
         <section className="text-center py-12 space-y-4" aria-labelledby="cta-heading">
-          <h2 id="cta-heading" className="text-3xl font-bold">Ready to Get Started?</h2>
+          <h2 id="cta-heading" className="text-3xl font-bold">{t('home.ctaTitle')}</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Join our community of artists and start sharing your creativity today.
+            {t('home.ctaDesc')}
           </p>
-          <Button size="lg" onClick={() => router.push('/register')} className="min-h-[44px]" aria-label="Create an account to get started">
-            Create an Account
+          <Button size="lg" onClick={() => router.push('/register')} className="min-h-[44px]" aria-label={t('home.createAccount')}>
+            {t('home.createAccount')}
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </Button>
         </section>
