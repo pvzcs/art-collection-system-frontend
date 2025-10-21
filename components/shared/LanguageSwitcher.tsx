@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { Languages } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Languages } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useLocaleStore, Locale } from '@/lib/stores/localeStore';
-import { useEffect, useState } from 'react';
+} from "@/components/ui/dropdown-menu";
+import { useLocaleStore, Locale } from "@/lib/stores/localeStore";
+import { useEffect, useState } from "react";
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLocaleStore();
@@ -17,12 +17,12 @@ export function LanguageSwitcher() {
 
   useEffect(() => {
     setMounted(true);
-    
+
     // Auto-detect browser language on first mount if not set
-    const storedLocale = localStorage.getItem('locale-storage');
+    const storedLocale = localStorage.getItem("locale-storage");
     if (!storedLocale) {
       const browserLang = navigator.language.toLowerCase();
-      const detectedLocale: Locale = browserLang.startsWith('zh') ? 'zh' : 'en';
+      const detectedLocale: Locale = browserLang.startsWith("zh") ? "zh" : "en";
       setLocale(detectedLocale);
     }
   }, [setLocale]);
@@ -32,11 +32,9 @@ export function LanguageSwitcher() {
   }
 
   const languages = [
-    { code: 'en' as Locale, name: 'English', nativeName: 'English' },
-    { code: 'zh' as Locale, name: 'Chinese', nativeName: '中文' },
+    { code: "en" as Locale, name: "English", nativeName: "English" },
+    { code: "zh" as Locale, name: "Chinese", nativeName: "中文" },
   ];
-
-  const currentLanguage = languages.find(lang => lang.code === locale) || languages[0];
 
   return (
     <DropdownMenu>
@@ -55,13 +53,11 @@ export function LanguageSwitcher() {
           <DropdownMenuItem
             key={lang.code}
             onClick={() => setLocale(lang.code)}
-            className={locale === lang.code ? 'bg-accent' : ''}
+            className={locale === lang.code ? "bg-accent" : ""}
           >
             <span className="flex items-center justify-between w-full">
               <span>{lang.nativeName}</span>
-              {locale === lang.code && (
-                <span className="text-primary">✓</span>
-              )}
+              {locale === lang.code && <span className="text-primary">✓</span>}
             </span>
           </DropdownMenuItem>
         ))}
